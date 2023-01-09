@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+        <meta name="description" content="CRM for fight-club">
+        <title>Регистрация</title>
+
+        {% load static %}
+    
+        <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/sidebars/">
+        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+
+        <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image">
+        <!-- <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="manifest" href="/site.webmanifest">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="theme-color" content="#ffffff"> -->
+        
+        <!-- Custom styles for this template -->
+        <link rel="stylesheet" href="{% static 'css/sidebars.css' %}">
+    </head>
+
+    <body>
+        {% block content %}
+        <div class="row justify-content-center">
+            <div class="col-md-8 p-5">
+            <div class="card">
+                <div class="card-header">
+                Регистрация нового пользователя
+                </div>
+                <div class="card-body">
+                {# Этот блок будет показан, если в форме есть ошибки #}
+                {% if form.errors %}
+                    {% for field in form %}
+                    {% for error in field.errors %}            
+                        <div class="alert alert-danger">
+                        {{ error|escape }}
+                        </div>
+                    {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ error|escape }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" action="{% url 'users:signup' %}">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="form-group row my-3 p-3">
+                        <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                            <span class="required text-danger">*</span>
+                        {% endif %}
+                        </label>    
+                        {{ field }}
+                        {% if field.help_text %}
+                        <small id="{{ field.id_for_label }}-help" class="form-text text-muted">
+                            {{ field.help_text|safe }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="col-md-6 offset-md-4">
+                        <button type="submit" class="btn btn-primary">
+                        Зарегистрировать
+                        </button>
+                    </div>
+                </form>
+                </div> <!-- card body -->
+                </div> <!-- card -->
+            </div> <!-- col -->
+        </div> <!-- row -->
+        {% endblock %}
+    </body>

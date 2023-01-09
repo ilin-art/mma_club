@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users.apps.UsersConfig',
+    'phonenumber_field',
 ]
 
 MIDDLEWARE = [
@@ -101,6 +102,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'users.User'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -122,3 +125,16 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+# адрес, на который Django будет перенаправлять пользователей для авторизации.
+#LOGIN_URL = 'users:login'
+
+# куда перенаправить пользователя после успешной авторизации.
+LOGIN_REDIRECT_URL = 'tasks:tasks'
+
+# Адрес, на который будет направлен пользователь после выхода из системы.
+LOGOUT_REDIRECT_URL = 'users:login'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# указываем директорию, в которую будут складываться файлы писем
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')

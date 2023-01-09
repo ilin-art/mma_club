@@ -12,3 +12,11 @@ class Task(models.Model):
         on_delete=models.PROTECT,
         related_name='tasks'
     )
+
+    def __str__(self):
+        return self.text
+
+    class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Заметка'
+        verbose_name_plural = 'Заметки'

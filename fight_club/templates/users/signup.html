@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
         <meta name="description" content="CRM for fight-club">
-        <title>Регистрация</title>
+        <title>ELEVATE</title>
 
         {% load static %}
     
@@ -21,16 +21,71 @@
         
         <!-- Custom styles for this template -->
         <link rel="stylesheet" href="{% static 'css/sidebars.css' %}">
+
+        <style>
+
+          .text-left {
+            text-align: left
+          }
+
+
+            .bd-placeholder-img {
+              font-size: 1.125rem;
+              text-anchor: middle;
+              -webkit-user-select: none;
+              -moz-user-select: none;
+              user-select: none;
+            }
+      
+            @media (min-width: 768px) {
+              .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+              }
+            }
+      
+            .b-example-divider {
+              height: 3rem;
+              background-color: rgba(0, 0, 0, .1);
+              border: solid rgba(0, 0, 0, .15);
+              border-width: 1px 0;
+              box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+            }
+      
+            .b-example-vr {
+              flex-shrink: 0;
+              width: 1.5rem;
+              height: 100vh;
+            }
+      
+            .bi {
+              vertical-align: -.125em;
+              fill: currentColor;
+            }
+      
+            .nav-scroller {
+              position: relative;
+              z-index: 2;
+              height: 2.75rem;
+              overflow-y: hidden;
+            }
+      
+            .nav-scroller .nav {
+              display: flex;
+              flex-wrap: nowrap;
+              padding-bottom: 1rem;
+              margin-top: -1px;
+              overflow-x: auto;
+              text-align: center;
+              white-space: nowrap;
+              -webkit-overflow-scrolling: touch;
+            }
+          </style>
     </head>
 
-    <body>
+    <body class="text-center">
         {% block content %}
         <div class="row justify-content-center">
-            <div class="col-md-8 p-5">
-            <div class="card">
-                <div class="card-header">
-                Регистрация нового пользователя
-                </div>
+            <div class="col-md-3 p-5">
                 <div class="card-body">
                 {# Этот блок будет показан, если в форме есть ошибки #}
                 {% if form.errors %}
@@ -47,33 +102,63 @@
                     </div>
                     {% endfor %}
                 {% endif %}
-
+            <main class="form-signin w-100 m-auto">
                 <form method="post" action="{% url 'users:signup' %}">
                     {% csrf_token %}
-                    {% for field in form %}
-                    <div class="form-group row my-3 p-3">
-                        <label for="{{ field.id_for_label }}">
-                        {{ field.label }}
-                        {% if field.field.required %}
-                            <span class="required text-danger">*</span>
-                        {% endif %}
-                        </label>    
-                        {{ field }}
-                        {% if field.help_text %}
-                        <small id="{{ field.id_for_label }}-help" class="form-text text-muted">
-                            {{ field.help_text|safe }}
-                        </small>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    <div class="col-md-6 offset-md-4">
-                        <button type="submit" class="btn btn-primary">
-                        Зарегистрировать
-                        </button>
-                    </div>
-                </form>
+              <img class="mb-4" src="{% static 'img/logo.png' %}" alt="" width="72" height="57">
+              <h1 class="h3 mb-3 fw-normal">Регистрация нового пользователя</h1>
+              {% comment %} {% if form.errors %}
+                        {% for field in form %}
+                          {% for error in field.errors %}            
+                            <div class="alert alert-danger">
+                              {{ error|escape }}
+                            </div>
+                          {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                          <div class="alert alert-danger">
+                            {{ error|escape }}
+                          </div>
+                        {% endfor %}
+                    {% endif %} {% endcomment %}
+              <div class="form-floating">
+                <input type="text" name="full_name" class="form-control" maxlength="255" required="" id="id_full_name">
+                <label for="id_full_name">Полное имя</label>
+              </div>
+              <div class="form-floating">
+                <input type="email" class="form-control" name="email" maxlength="254" required="" id="id_email">
+                <label for="id_email">Email</label>
+              </div>
+              <div class="form-floating">
+                <input type="tel" name="phoneNumber" maxlength="128" autofocus="" required="" id="id_phoneNumber" class="form-control">
+                <label for="id_phoneNumber">Телефон в формате +7ХХХХХХХХХХ</label>
+              </div>
+              <div class="form-floating">
+                <input type="password" class="form-control" name="password1" autocomplete="new-password" required="" id="id_password1">
+                <label for="id_password1">Пароль</label>
+                <small id="id_password1-help" class="form-text text-muted text-left">
+                    <ul>
+                        <li>Пароль не должен быть слишком похож на другую вашу личную информацию.</li>
+                        <li>Ваш пароль должен содержать как минимум 8 символов.</li>
+                        <li>Пароль не должен быть слишком простым и распространенным.</li>
+                        <li>Пароль не может состоять только из цифр.</li>
+                    </ul>
+                </small>
+              </div>
+              <div class="form-floating">
+                <input type="password" class="form-control" name="password2" autocomplete="new-password" required="" id="id_password2">
+                <label for="id_password2">Подтверждение пароля</label>
+              </div>
+              
+               
+              <br>
+              <div class="align-bottom">
+                <button class="w-100 btn btn-lg btn-primary" type="submit">Зарегистрировать</button>
+              </div>
+
+            </form>
+            </main>
                 </div> <!-- card body -->
-                </div> <!-- card -->
             </div> <!-- col -->
         </div> <!-- row -->
         {% endblock %}
