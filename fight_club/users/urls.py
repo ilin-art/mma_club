@@ -1,10 +1,15 @@
 from django.contrib.auth import views
-from .views import SignUp
+from .views import SignUp, profile
 from django.urls import path
 
 app_name = 'users'
 
 urlpatterns = [
+    path(
+      'profile/<str:username>/',
+      profile,
+      name='profile'
+    ),
     path(
       'logout/',
       views.LogoutView.as_view(template_name='users/logged_out.html'),

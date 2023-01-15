@@ -1,93 +1,4 @@
-# # from django.core.mail import send_mail
-# # from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-# # from django.contrib.auth.models import PermissionsMixin
-# # # from django.contrib.auth.validators import UnicodeUsernameValidator
-# # from django.db import models
-# # # from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
-
-
-# # class UserManager(BaseUserManager):
-# #     use_in_migrations = True
-# #     def _create_user(self, email, phone_number, first_name, password, **extra_fields):
-# #         """
-# #         Create and save a user with the given phone_number, email,
-# #         first_name, and password.
-# #         """
-# #         if not email:
-# #             raise ValueError('Нужно ввести email')
-# #         if not phone_number:
-# #             raise ValueError('Нужно ввести номер телефона')
-# #         if not first_name:
-# #             raise ValueError('TНужно ввести имя')
-# #         email = self.normalize_email(email)
-# #         user = self.model(
-# #             email=email, first_name=first_name, phone_number=phone_number,
-# #             **extra_fields
-# #         )
-# #         user.set_password(password)
-# #         user.save(using=self._db)
-# #         return user
-# #     def create_user(self, email, phone_number, first_name, password=None, **extra_fields):
-# #         extra_fields.setdefault('is_staff', False)
-# #         extra_fields.setdefault('is_superuser', False)
-# #         return self._create_user(
-# #             email, phone_number, first_name, password, **extra_fields
-# #         )
-# #     def create_superuser(self, email, phone_number, first_name, password, **extra_fields):
-# #         extra_fields.setdefault('is_staff', True)
-# #         extra_fields.setdefault('is_superuser', True)
-# #         if extra_fields.get('is_staff') is not True:
-# #             raise ValueError('Superuser must have is_staff=True.')
-# #         if extra_fields.get('is_superuser') is not True:
-# #             raise ValueError('Superuser must have is_superuser=True.')
-# #         return self._create_user(
-# #             email, phone_number, first_name, password, **extra_fields
-# #         )
-
-
-# class User(AbstractBaseUser, PermissionsMixin):
-#     # username_validator = UnicodeUsernameValidator()
-
-#     # username = models.CharField(
-#     #     max_length=150,
-#     #     unique=True,
-#     #     validators=[username_validator],
-#     # )
-#     email = models.EmailField(unique=True)
-#     first_name = models.CharField(max_length=255)
-#     last_name = models.CharField(max_length=255)
-#     middle_name = models.CharField(max_length=255)
-#     phoneNumber = PhoneNumberField(unique = True, null = False, blank = False)
-
-#     # username = models.CharField(max_length=150,
-#     #                             verbose_name='Логин')
-#     # first_name = models.CharField(max_length=150,
-#     #                               verbose_name='Имя')
-#     # last_name = models.CharField(max_length=150,
-#     #                              verbose_name='Фамилия')
-#     # email = models.EmailField(unique=True,
-#     #                           verbose_name='Почта')
-
-#     USERNAME_FIELD = 'phoneNumber'
-#     REQUIRED_FIELDS = ['first_name']
-
-#     objects = UserManager()
-
-#     def __str__(self):
-#         return self.email
-
-#     def get_short_name(self):
-#         return self.email
-
-#     def get_full_name(self):
-#         return self.first_name
-
-#     def email_user(self, subject, message, from_email=None, **kwargs):
-#         send_mail(subject, message, from_email, [self.email], **kwargs)
-
-
-# users/models.py
 
 from django.core.mail import send_mail
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -96,6 +7,9 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 from django.conf import settings
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class UserManager(BaseUserManager):
@@ -178,8 +92,8 @@ class Profile(models.Model):
         verbose_name='Пользователь',
     )
     CHOICES = (
-        ('Male', 'М'),
-        ('Female', 'Ж'),
+        ('М', 'М'),
+        ('Ж', 'Ж'),
     )
     gender = models.CharField(max_length=20,
         choices = CHOICES,
@@ -209,3 +123,14 @@ class Profile(models.Model):
         ordering = ('-id',)
         verbose_name = 'Профиль'
         verbose_name_plural = 'Профили'
+
+# Автоматическое создание профиля при регистрации
+@receiver(post_save, sender=User)
+def save_or_create_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+    else:
+        try:
+            instance.profile.save()
+        except ObjectDoesNotExist:
+            Profile.objects.create(user=instance)

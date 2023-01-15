@@ -25,4 +25,3 @@ def tasks(request):
         'tasks': task,
     }
     return render(request, template, context)
-
