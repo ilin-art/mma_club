@@ -124,13 +124,16 @@ class Profile(models.Model):
         verbose_name = 'Профиль'
         verbose_name_plural = 'Профили'
 
-# Автоматическое создание профиля при регистрации
+# Автоматическое создание профиля и заметки при регистрации
 @receiver(post_save, sender=User)
 def save_or_create_profile(sender, instance, created, **kwargs):
+    from tasks.models import Task
     if created:
         Profile.objects.create(user=instance)
+        Task.objects.create(user=instance)
     else:
         try:
             instance.profile.save()
         except ObjectDoesNotExist:
             Profile.objects.create(user=instance)
+            Task.objects.create(user=instance)
