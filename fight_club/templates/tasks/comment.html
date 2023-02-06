@@ -5,3 +5,16 @@
     </table>
     <input type="submit" value="Submit" />
 </form>
+
+{% for comment in comments %}
+    <a href="#" class="list-group-item list-group-item-action py-3 lh-sm" aria-current="true">
+        <div class="d-flex w-100 align-items-center justify-content-between">
+        <strong class="mb-1">{{ comment.text }}</strong>
+        <br>
+        <small>{{ comment.created|date:"d.m.Y G:i" }}</small>
+        </div>
+        <div class="col-10 mb-1 small">{{ comment.author }}</div>
+    </a>
+    ____________
+    <br>
+{% endfor %}

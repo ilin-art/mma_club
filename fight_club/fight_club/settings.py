@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from django.urls import reverse_lazy, reverse
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -110,13 +113,13 @@ AUTH_USER_MODEL = 'users.User'
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+#Часовой пояс
+USE_TZ = True
+TIME_ZONE = 'Europe/Moscow' #UTC +4
 
 USE_I18N = True
 
 USE_L10N = True
-
-USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -130,7 +133,8 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 #LOGIN_URL = 'users:login'
 
 # куда перенаправить пользователя после успешной авторизации.
-LOGIN_REDIRECT_URL = 'tasks:tasks'
+# LOGIN_REDIRECT_URL = 'users:profile username={{ request.GET.username }}'
+LOGIN_REDIRECT_URL = 'users:profile'
 
 # Адрес, на который будет направлен пользователь после выхода из системы.
 LOGOUT_REDIRECT_URL = 'users:login'

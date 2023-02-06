@@ -1,18 +1,27 @@
 from django.contrib.auth import views
-from .views import SignUp, profile, ProfileView
+from .views import SignUp, profile, profile_user, ProfileView, users_list
 from django.urls import path
 
 app_name = 'users'
 
 urlpatterns = [
     path(
-      'profile/<str:username>/',
+        '',
+        users_list,
+        name='users'
+    ),
+    path(
+      'profile/',
       profile,
       name='profile'
     ),
+    path(
+      'profile/<str:username>/',
+      profile_user,
+      name='profile_user'
+    ),
      path(
       'profile/<str:username>/profile_edit',
-    #   profile_edit,
       ProfileView.as_view(template_name = 'users/profile_edit.html'),
       name='profile_edit'
     ),

@@ -78,9 +78,11 @@
   <body class="text-center">  
     <main class="form-signin w-100 m-auto">
       <form method="post"
-        {% if action_url %}
-          action="{% url action_url %}"
-        {% endif %}
+        {% comment %} {% if action_url %}
+          action="{% url action_url request.user %}"
+        {% endif %} {% endcomment %}
+
+        action="{% url 'users:login' %}"
       >
               {% csrf_token %}
         <img class="mb-4" src="{% static 'img/logo.png' %}" alt="" width="72" height="57">
