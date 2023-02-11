@@ -41,10 +41,7 @@
     <form action="" method="post">
         {% csrf_token %}
         <table>
-        {{ profile_form }}
-        </table>
-        <table>
-        {{ task_form }}
+        {{ form }}
         </table>
         <input type="submit" value="Submit" />
     </form>

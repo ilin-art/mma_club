@@ -1,5 +1,5 @@
 from django.contrib.auth import views
-from .views import SignUp, profile, profile_user, ProfileView, users_list
+from .views import SignUp, profile, ProfileView, users_list
 from django.urls import path
 
 app_name = 'users'
@@ -17,14 +17,14 @@ urlpatterns = [
     ),
     path(
       'profile/<str:username>/',
-      profile_user,
+      ProfileView.as_view(template_name = 'users/profile.html'),
       name='profile_user'
     ),
-     path(
-      'profile/<str:username>/profile_edit',
-      ProfileView.as_view(template_name = 'users/profile_edit.html'),
-      name='profile_edit'
-    ),
+    #  path(
+    #   'profile/<str:username>/profile_edit',
+    #   ProfileView.as_view(template_name = 'users/profile_edit.html'),
+    #   name='profile_edit'
+    # ),
     path(
       'logout/',
       views.LogoutView.as_view(template_name='users/logged_out.html'),

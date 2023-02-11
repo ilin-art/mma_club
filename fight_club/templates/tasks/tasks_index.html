@@ -21,6 +21,8 @@
     
     <!-- Custom styles for this template -->
     <link rel="stylesheet" href="{% static 'css/sidebars.css' %}">
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/sidebars.js' %}"></script>
   </head>
 
   <body>
@@ -31,7 +33,62 @@
 
       {% include 'includes/sidebar.html' %}
 
-      <div class="b-example-divider b-example-vr"></div>
+      <form>
+        <p><input type="search" name="q" placeholder="Поиск по сайту"> 
+        <input type="submit" value="Найти"></p>
+       </form>
+
+      <div class="col d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
+        <div class="row justify-content-between p-3 border-bottom">
+          <div class="col-4">
+            <span class="fs-5 fw-semibold">Сегодняшние</span>
+          </div>
+          <div class="col-4">
+            {{ count_now }} задач{{ now_last_letter }}
+          </div>
+        </div>
+        <div class="list-group list-group-flush border-bottom scrollarea">
+          {% for task in tasks %}
+            {% if task.relevance %}
+              {% if task.now %}
+                <a href="#" class="list-group-item list-group-item-action active py-3 lh-sm" aria-current="true">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">{{ task.user.get_full_name }}</strong>
+                    <small>{{ task.signal_date|date:"d.m.Y" }}</small>
+                  </div>
+                  <div class="col-10 mb-1 small">{{ task.text }}</div>
+                </a>
+              {% endif %}  
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
+        <div class="row justify-content-between p-3 border-bottom">
+          <div class="col-4">
+            <span class="fs-5 fw-semibold">Активные</span>
+          </div>
+          <div class="col-4">
+            {{ count_future }} задач{{ future_last_letter }}
+          </div>
+        </div>
+        <div class="list-group list-group-flush border-bottom scrollarea">
+          {% for task in tasks %}
+            {% if task.relevance %}
+              {% if task.future %}
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-sm" aria-current="true">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">{{ task.user.get_full_name }}</strong>
+                    <small>{{ task.signal_date|date:"d.m.Y" }}</small>
+                  </div>
+                  <div class="col-10 mb-1 small">{{ task.text }}</div>
+                </a>
+              {% endif %}  
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
 
       <div class=" col d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
         <div class="row justify-content-between p-3 border-bottom">
@@ -60,66 +117,6 @@
       </div>
 
       <div class="b-example-divider b-example-vr"></div>
-
-      <div class="col d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
-        <div class="row justify-content-between p-3 border-bottom">
-          <div class="col-4">
-            <span class="fs-5 fw-semibold">Сегодняшние</span>
-          </div>
-          <div class="col-4">
-            {{ count_now }} задач{{ now_last_letter }}
-          </div>
-        </div>
-        <div class="list-group list-group-flush border-bottom scrollarea">
-          {% for task in tasks %}
-            {% if task.relevance %}
-              {% if task.now %}
-                <a href="#" class="list-group-item list-group-item-action active py-3 lh-sm" aria-current="true">
-                  <div class="d-flex w-100 align-items-center justify-content-between">
-                    <strong class="mb-1">{{ task.user.get_full_name }}</strong>
-                    <small>{{ task.signal_date|date:"d.m.Y" }}</small>
-                  </div>
-                  <div class="col-10 mb-1 small">{{ task.text }}</div>
-                </a>
-              {% endif %}  
-            {% endif %}
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="b-example-divider b-example-vr"></div>
-
-      <div class="col d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
-        <div class="row justify-content-between p-3 border-bottom">
-          <div class="col-4">
-            <span class="fs-5 fw-semibold">Активные</span>
-          </div>
-          <div class="col-4">
-            {{ count_future }} задач{{ future_last_letter }}
-          </div>
-        </div>
-        <div class="list-group list-group-flush border-bottom scrollarea">
-          {% for task in tasks %}
-            {% if task.relevance %}
-              {% if task.future %}
-                <a href="#" class="list-group-item list-group-item-action py-3 lh-sm" aria-current="true">
-                  <div class="d-flex w-100 align-items-center justify-content-between">
-                    <strong class="mb-1">{{ task.user.get_full_name }}</strong>
-                    <small>{{ task.signal_date|date:"d.m.Y" }}</small>
-                  </div>
-                  <div class="col-10 mb-1 small">{{ task.text }}</div>
-                </a>
-              {% endif %}  
-            {% endif %}
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="b-example-divider b-example-vr"></div>
     </main>
-
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-
-    <script src="{% static 'js/sidebars.js' %}"></script>
   </body>
 </html>
