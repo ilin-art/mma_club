@@ -15,6 +15,10 @@ main {
   overflow-y: hidden;
 }
 
+.content{
+    flex: 1 1
+}
+
 .dropdown-toggle { outline: 0; }
 
 .btn-toggle {
