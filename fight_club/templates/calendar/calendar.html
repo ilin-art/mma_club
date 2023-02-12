@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+    <meta name="description" content="CRM for fight-club">
+    <title>ELEVATE</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/calendar/reset.css' %}" />
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image">
+    <link rel="stylesheet" href="{% static 'css/sidebars.css' %}">
+    <link rel="stylesheet" href="{% static 'css/calendar/app.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/calendar/icons.css' %}" />
+    <link
+    rel="stylesheet"
+    href="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.min.css"
+  /> 
+   <link
+    rel="stylesheet"
+    href="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.min.css"
+  /> 
+    <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.3/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chance/1.1.8/chance.min.js"></script>
+    <script src="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.js"></script>
+    <script src="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.js"></script>
+    <script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script>
+  </head>
+
+  <body>
+    <main class="d-flex flex-nowrap">
+      <h1 class="visually-hidden">Панель навигации</h1>
+      <div class="b-example-divider b-example-vr"></div>
+      <div class="content">
+        <div class="app-container code-html">
+            <header class="header">
+              <a href="https://github.com/nhn/tui.calendar">
+                <img
+                  alt="TOAST UI Calendar Brand Image"
+                  src="{% static 'img/calendar/img-bi.png' %}"
+                />
+              </a>
+            </header>
+            <article class="content">
+              <aside class="sidebar">
+                <div class="sidebar-item">
+                  <input class="checkbox-all" type="checkbox" id="all" value="all" checked />
+                  <label class="checkbox checkbox-all" for="all">View all</label>
+                </div>
+                <hr />
+                <div class="sidebar-item">
+                  <input type="checkbox" id="1" value="1" checked />
+                  <label class="checkbox checkbox-calendar checkbox-1" for="1">My Calendar</label>
+                </div>
+                <div class="sidebar-item">
+                  <input type="checkbox" id="2" value="2" checked />
+                  <label class="checkbox checkbox-calendar checkbox-2" for="2">Тренеры</label>
+                </div>
+                <div class="sidebar-item">
+                  <input type="checkbox" id="3" value="3" checked />
+                  <label class="checkbox checkbox-calendar checkbox-3" for="3">Family</label>
+                </div>
+                <div class="sidebar-item">
+                  <input type="checkbox" id="4" value="4" checked />
+                  <label class="checkbox checkbox-calendar checkbox-4" for="4">Friends</label>
+                </div>
+                <div class="sidebar-item">
+                  <input type="checkbox" id="5" value="5" checked />
+                  <label class="checkbox checkbox-calendar checkbox-5" for="5">Travel</label>
+                </div>
+                <hr />
+              </aside>
+              <section class="app-column">
+                <nav class="navbar">
+                  <div class="dropdown">
+                    <div class="dropdown-trigger">
+                      <button
+                        class="button is-rounded"
+                        aria-haspopup="true"
+                        aria-controls="dropdown-menu"
+                      >
+                        <span class="button-text"></span>
+                        <span
+                          class="dropdown-icon toastui-calendar-icon toastui-calendar-ic-dropdown-arrow"
+                        ></span>
+                      </button>
+                    </div>
+                    <div class="dropdown-menu">
+                      <div class="dropdown-content">
+                        <a href="#" class="dropdown-item" data-view-name="month">Monthly</a>
+                        <a href="#" class="dropdown-item" data-view-name="week">Weekly</a>
+                        <a href="#" class="dropdown-item" data-view-name="day">Daily</a>
+                      </div>
+                    </div>
+                  </div>
+                  <button class="button is-rounded today">Today</button>
+                  <button class="button is-rounded prev">
+                    <img
+                      alt="prev"
+                      src="{% static 'img/calendar/ic-arrow-line-left.png' %}"
+                    />
+                  </button>
+                  <button class="button is-rounded next">
+                    <img
+                      alt="prev"
+                      src="{% static 'img/calendar/ic-arrow-line-right.png' %}"
+                    />
+                  </button>
+                  <span class="navbar--range"></span>
+                  <div class="nav-checkbox">
+                    <input class="checkbox-collapse" type="checkbox" id="collapse" value="collapse" />
+                    <label for="collapse">Collapse duplicate events and disable the detail popup</label>
+                  </div>
+                </nav>
+                <main id="app"></main>
+              </section>
+            </article>
+          </div>
+
+
+      </div>
+    </main>  
+      <script src="{% static 'js/calendar/mock-data.js' %}"></script>
+      <script src="{% static 'js/calendar/utils.js' %}"></script>
+      <script src="{% static 'js/calendar/app.js' %}"></script>
+  </body>
+</html>
