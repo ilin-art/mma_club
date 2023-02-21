@@ -10,6 +10,7 @@ class TaskAdmin(admin.ModelAdmin):
     search_fields = ('text', 'pk', 'user__username',)
     # Добавляем возможность фильтрации по дате
     list_filter = ('signal_date',)
+    list_display_links = ('pk', 'text',)
 
 admin.site.register(Task, TaskAdmin)
 
@@ -21,5 +22,6 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ('text', 'pk',)
     # Добавляем возможность фильтрации по дате
     list_filter = ('author',)
+    list_display_links = ('pk', 'text',)
 
 admin.site.register(Comment, CommentAdmin)

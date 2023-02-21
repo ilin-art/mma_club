@@ -132,3 +132,31 @@ input:disabled + label {
 .checkbox.checkbox-5::before {
     background-color: var(--checkbox-5);
 }
+
+.checkbox.checkbox-6::before {
+    background-color: var(--checkbox-6);
+}
+
+.checkbox.checkbox-7::before {
+    background-color: var(--checkbox-7);
+}
+
+.checkbox.checkbox-8::before {
+    background-color: var(--checkbox-8);
+}
+
+.checkbox.checkbox-9::before {
+    background-color: var(--checkbox-9);
+}
+
+.checkbox.checkbox-10::before {
+    background-color: var(--checkbox-10);
+}
+
+.checkbox.checkbox-11::before {
+    background-color: var(--checkbox-11);
+}
+
+.checkbox.checkbox-12::before {
+    background-color: var(--checkbox-12);
+}

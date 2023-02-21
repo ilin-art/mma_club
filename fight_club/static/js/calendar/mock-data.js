@@ -4,7 +4,7 @@ var MOCK_CALENDARS = [
     {
       id: '1',
       name: 'My Calendar',
-      color: '#ffffff',
+      color: '#00a86b',
       borderColor: '#9e5fff',
       backgroundColor: '#9e5fff',
       dragBackgroundColor: '#9e5fff',
@@ -41,9 +41,43 @@ var MOCK_CALENDARS = [
       backgroundColor: '#bbdc00',
       dragBackgroundColor: '#bbdc00',
     },
+    {
+      id: '6',
+      name: 'job',
+      color: '#ffffff',
+      borderColor: '#000000',
+      backgroundColor: '#000000',
+      dragBackgroundColor: '#000000',
+    },
+    {
+      id: '7',
+      name: 'пати',
+      color: '#DB473F',
+      borderColor: '#DB473F',
+      backgroundColor: '#DB473F',
+      dragBackgroundColor: '#DB473F',
+    },
   ];
+
+// document.getElementById('placeForText').innerHTML = MOCK_CALENDARS;
+
+// console.log(document.getElementById('placeForText'));
+
+// let html = ''
+
+// <div class="sidebar-item">
+//     <input type="checkbox" id="1" value="1" checked />
+//     <label class="checkbox checkbox-calendar checkbox-1" for="1">My Calendar</label>
+// </div>
+
+// MOCK_CALENDARS.forEach(function(elem) {
+//   html += elem.id + '<br>'
+// 	// document.getElementById('placeForText').innerHTML = elem.id + '<br>';
+//   console.log(elem.id)
+// });
+// document.getElementById('placeForText').innerHTML = html
   
-  var EVENT_CATEGORIES = ['milestone', 'task'];
+var EVENT_CATEGORIES = ['milestone', 'task'];
   
   function generateRandomEvent(calendar, renderStart, renderEnd) {
     function generateTime(event, renderStart, renderEnd) {

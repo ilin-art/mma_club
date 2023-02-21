@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'api.apps.ApiConfig',
     'tasks.apps.TasksConfig',
     'training_calendar.apps.TrainingCalendarConfig',
     'django.contrib.admin',

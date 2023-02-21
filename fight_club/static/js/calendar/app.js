@@ -1,6 +1,11 @@
 /* eslint-disable no-var,prefer-destructuring,prefer-template,no-undef,object-shorthand,no-console */
 // for testing IE11 compatibility, this file doesn't use ES6 syntax.
 
+
+// document.getElementById('placeForText').innerHTML = 'Hello World!';
+
+// console.log(document.getElementById('placeForText'));
+
 (function (Calendar) {
     var cal;
     // Constants
