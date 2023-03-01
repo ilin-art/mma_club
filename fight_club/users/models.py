@@ -61,6 +61,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     phoneNumber = PhoneNumberField(unique = True, null = False, blank = False, verbose_name = 'телефон в формате +7ХХХХХХХХХХ')
     registration_date = models.DateTimeField(auto_now_add=True, verbose_name = 'зарегистрирован')
+    is_trainer = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'phoneNumber'
     REQUIRED_FIELDS = ['full_name', 'email']

@@ -54,9 +54,10 @@ def add_comment(request, task_id):
     task = get_object_or_404(Task, id=task_id)
     form = CommentForm(request.POST or None)
     comments = Comment.objects.order_by('-created')
+    queryset = comments.filter(task=task_id)
     context = {
         'form': form,
-        'comments': comments,
+        'comments': queryset,
     }
     if form.is_valid():
         comment = form.save(commit=False)

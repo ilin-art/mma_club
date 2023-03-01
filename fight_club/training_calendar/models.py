@@ -22,6 +22,34 @@ class Label(models.Model):
         verbose_name_plural = 'Метки'
 
 
+class Training(models.Model):
+    label = models.ForeignKey(
+        Label, related_name='trainigs',
+        on_delete=models.SET_NULL,
+        verbose_name="Метка",
+        null=True,
+    )
+    coach = models.ForeignKey(
+        User, related_name='trainigs_as_coach',
+        on_delete=models.SET_NULL,
+        verbose_name="тренер",
+        null=True,
+    )
+
+    client = models.ManyToManyField(
+        User, related_name='trainigs_as_client',
+        verbose_name="клиент",
+        null=True,
+    )
+    start =  models.DateTimeField(verbose_name='Начало тренировки')
+    end =  models.DateTimeField(verbose_name='Конец тренировки')
+
+    class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Тренировка'
+        verbose_name_plural = 'Тренеровки'
+
+
 # class Comment(models.Model):
 #     task = models.ForeignKey(
 #         Task,

@@ -1,5 +1,27 @@
-{% for user in users %}
-    {{ user.full_name }}
-    <br>
-    {{ user.profile.height }}
-{% endfor %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+{% include 'includes/sidebar_symbols.html' %}
+{% include 'includes/sidebar.html' %}
+<link rel="stylesheet" href="{% static 'css/sidebars.css' %}">
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/sidebars.js' %}"></script>
+
+<div>
+    <form>
+        <p><input type="search" name="q" placeholder="Поиск по сайту"> 
+        <input type="submit" value="Найти"></p>
+    </form>
+ </div>
+
+<div class="row">
+    <div class="col-4"><p>Полное имя</p></div>
+    <div class="col-4"><p>Телефон</p></div>
+    <div class="col-4"><p>Email</p></div>
+    {% for user in users %}
+        <a href="{% url 'users:profile_user' username=user.phoneNumber %}">
+            <div href="{% url 'users:profile_user' username=user.phoneNumber %}" class="col-4">{{ user.full_name }}</div>
+            <div class="col-4">{{ user.phoneNumber }}</div>
+            <div class="col-4">{{ user.email }}</div>
+        </a>
+    {% endfor %}
+</div>

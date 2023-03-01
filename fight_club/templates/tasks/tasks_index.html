@@ -26,17 +26,19 @@
   </head>
 
   <body>
+    <div>
+      <form>
+        <p><input type="search" name="q" placeholder="Поиск по сайту"> 
+        <input type="submit" value="Найти"></p>
+      </form>
+    </div>
     {% include 'includes/sidebar_symbols.html' %}
 
     <main class="d-flex flex-nowrap">
       <h1 class="visually-hidden">Панель навигации</h1>
 
       {% include 'includes/sidebar.html' %}
-
-      <form>
-        <p><input type="search" name="q" placeholder="Поиск по сайту"> 
-        <input type="submit" value="Найти"></p>
-       </form>
+      
 
       <div class="col d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
         <div class="row justify-content-between p-3 border-bottom">
@@ -51,7 +53,7 @@
           {% for task in tasks %}
             {% if task.relevance %}
               {% if task.now %}
-                <a href="#" class="list-group-item list-group-item-action active py-3 lh-sm" aria-current="true">
+                <a href="{% url 'tasks:add_comment' task_id=task.pk %}" class="list-group-item list-group-item-action py-3 lh-sm" aria-current="true">
                   <div class="d-flex w-100 align-items-center justify-content-between">
                     <strong class="mb-1">{{ task.user.get_full_name }}</strong>
                     <small>{{ task.signal_date|date:"d.m.Y" }}</small>
@@ -77,7 +79,7 @@
           {% for task in tasks %}
             {% if task.relevance %}
               {% if task.future %}
-                <a href="#" class="list-group-item list-group-item-action py-3 lh-sm" aria-current="true">
+                <a href="{% url 'tasks:add_comment' task_id=task.pk %}" class="list-group-item list-group-item-action py-3 lh-sm" aria-current="true">
                   <div class="d-flex w-100 align-items-center justify-content-between">
                     <strong class="mb-1">{{ task.user.get_full_name }}</strong>
                     <small>{{ task.signal_date|date:"d.m.Y" }}</small>
@@ -103,7 +105,7 @@
           {% for task in tasks %}
             {% if task.relevance %}
               {% if task.past %}
-                <a href="#" class="list-group-item list-group-item-action py-3 lh-sm" aria-current="true">
+                <a href="{% url 'tasks:add_comment' task_id=task.pk %}" class="list-group-item list-group-item-action py-3 lh-sm" aria-current="true">
                   <div class="d-flex w-100 align-items-center justify-content-between">
                     <strong class="mb-1">{{ task.user.get_full_name }}</strong>
                     <small>{{ task.signal_date|date:"d.m.Y" }}</small>
