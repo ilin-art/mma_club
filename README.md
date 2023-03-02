@@ -32,7 +32,7 @@ python manage.py runserver
 * Python 3.9.9
 * Django
 * Django REST
-* SQLite3
+* SQLite3<br>
 Финальная версия будет переведена на SQL Postgres и работать через Docker
 
 # Проект разработал:
