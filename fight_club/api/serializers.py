@@ -20,7 +20,6 @@ class TrainingNameSerializer(serializers.ModelSerializer):
     coach = serializers.SlugRelatedField(read_only=True, slug_field='full_name')
     client = serializers.SlugRelatedField(read_only=True, many=True, slug_field='full_name')
     label = serializers.SlugRelatedField(read_only=True, slug_field='name')
-
     
     class Meta:
         model = Training

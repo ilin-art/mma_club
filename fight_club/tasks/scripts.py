@@ -13,7 +13,7 @@ def authorized_only(func):
         return redirect('/auth/login/')        
     return check_user
 
-#определяем последнюю букву к слову задача
+#определяем последнюю букву к слову 'задача'
 def last_letter(amount):
     if amount % 10 == 1:
         return 'а'

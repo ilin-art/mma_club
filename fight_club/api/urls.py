@@ -7,7 +7,6 @@ app_name = 'api'
 
 router = DefaultRouter()
 router.register('trainings', views.TrainingViewSet)
-# router.register('trainings-name', views.TrainingNameViewSet) 
 
 urlpatterns = [
     # Cтраница с задачами

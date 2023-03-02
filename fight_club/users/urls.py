@@ -20,18 +20,11 @@ urlpatterns = [
       ProfileView.as_view(template_name = 'users/profile.html'),
       name='profile_user'
     ),
-    #  path(
-    #   'profile/<str:username>/profile_edit',
-    #   ProfileView.as_view(template_name = 'users/profile_edit.html'),
-    #   name='profile_edit'
-    # ),
     path(
       'logout/',
       views.LogoutView.as_view(template_name='users/logged_out.html'),
       name='logout'
     ),
-    # Полный адрес страницы регистрации - auth/signup/,
-    # но префикс auth/ обрабатывется в головном urls.py
     path(
         'signup/',
         SignUp.as_view(),
