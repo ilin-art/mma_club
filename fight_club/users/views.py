@@ -103,3 +103,4 @@ def users_list(request):
         'users': users,
     }
     return render(request, 'users/users.html', context)
+    
