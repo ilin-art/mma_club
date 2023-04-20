@@ -24,29 +24,6 @@ def label_list(request):
     serializer = LabelSerializer(labels, many=True)
     return Response(serializer.data)
 
-# class TrainingFilter(filters.FilterSet):
-#     start_date = filters.DateFilter(field_name='start', lookup_expr='gte')
-#     end_date = filters.DateFilter(field_name='start', lookup_expr='lte')
-
-#     class Meta:
-#         model = Training
-#         fields = ['start_date', 'end_date']
-
-
-# @api_view(['GET', 'POST'])
-# def trainings_list(request):
-#     # Получаем все тренировки при GET и записываем одну при POST запросе
-#     if request.method == 'POST':
-#         serializer = TrainingSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#     trainings = Training.objects.all()
-#     serializer = TrainingSerializer(trainings, many=True)
-#     filter_backends = (DjangoFilterBackend,)
-#     filterset_fields = ('start')
-#     return Response(serializer.data)
 
 class TrainingViewSet(viewsets.ModelViewSet):
     queryset = Training.objects.all()
@@ -134,12 +111,6 @@ def trainings_this_month(request):
     )
     serializer = TrainingSerializer(trainings, many=True)
     return Response(serializer.data)
-
-# @api_view(['GET'])
-# def trainings_filter(request):
-#     training_filter = TrainingFilter(request.GET, queryset=Training.objects.all())
-#     serializer = TrainingSerializer(training_filter.qs, many=True)
-#     return Response(serializer.data)
 
 @api_view(['GET'])  # Список тренеров
 def trainers_list(request):
