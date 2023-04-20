@@ -53,7 +53,7 @@ class UserManager(BaseUserManager):
             email, phoneNumber, full_name, password, **extra_fields
         )
 
-
+ 
 class User(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=255, verbose_name='полное имя')
     email = models.EmailField(unique=True)
@@ -72,7 +72,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.full_name
 
-    def get_short_name(self):
+    def get_email(self):
         return self.email
 
     def get_full_name(self):
