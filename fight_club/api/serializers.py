@@ -1,7 +1,9 @@
 from rest_framework import serializers
 
 from training_calendar.models import Label, Training
-from users.models import User
+from users.models import User, Profile
+from tasks.models import Task
+from datetime import datetime
 
 
 class LabelSerializer(serializers.ModelSerializer):
@@ -39,7 +41,6 @@ class TrainingSerializer(serializers.ModelSerializer):
         clients_data = validated_data.pop('client', None)
         
         instance.coach = validated_data.get('coach', instance.coach)
-        # instance.coach_name = validated_data.get('coach_name', instance.coach_name)
         instance.label = validated_data.get('label', instance.label)
         instance.start = validated_data.get('start', instance.start)
         instance.end = validated_data.get('end', instance.end)
@@ -54,6 +55,36 @@ class TrainingSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    registration_date = serializers.SerializerMethodField()
+    last_login = serializers.SerializerMethodField()
+
+    def get_registration_date(self, obj):
+        if obj.registration_date:
+            return obj.registration_date.strftime('%Y-%m-%d %H:%M')
+        else:
+            return None
+
+    def get_last_login(self, obj):
+        if obj.last_login:
+            return obj.last_login.strftime('%Y-%m-%d %H:%M')
+        else:
+            return None
+        
     class Meta:
         model = User
-        fields = ('full_name', 'email', 'phoneNumber', 'is_trainer', 'is_admin')
+        fields = ('id', 'full_name', 'email', 'phoneNumber', 'is_trainer',
+                  'is_admin', 'registration_date', 'last_login')
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('id', 'user', 'gender', 'birthday', 'height', 'weight')
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.full_name', read_only=True)
+
+    class Meta:
+        model = Task
+        fields = ('id', 'user', 'text', 'signal_date', 'relevance', 'past', 'now', 'future')
