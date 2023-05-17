@@ -9,7 +9,8 @@ router = DefaultRouter()
 router.register('calendar', views.TrainingViewSet, basename='calendar')
 
 urlpatterns = [
-    # Cтраница с задачами
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
     path('calendar/label/', views.label_list, name='label_list'),
     path('', include(router.urls)),
     path('calendar/today/', views.trainings_today, name='trainings_today'),
@@ -23,4 +24,5 @@ urlpatterns = [
     path('tasks/now/', views.TaskNowView.as_view()),
     path('tasks/future/', views.TaskFutureView.as_view()),
     path('tasks/count/', views.TaskCountView.as_view()),
+    path('tasks/<int:pk>/', views.CommentView.as_view()),
 ]

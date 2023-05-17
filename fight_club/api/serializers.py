@@ -2,8 +2,10 @@ from rest_framework import serializers
 
 from training_calendar.models import Label, Training
 from users.models import User, Profile
-from tasks.models import Task
+from tasks.models import Task, Comment
 from datetime import datetime
+import base64
+from django.core.files.base import ContentFile
 
 
 class LabelSerializer(serializers.ModelSerializer):
@@ -76,10 +78,30 @@ class UserSerializer(serializers.ModelSerializer):
                   'is_admin', 'registration_date', 'last_login')
 
 
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')  
+            ext = format.split('/')[-1]  
+            data = ContentFile(base64.b64decode(imgstr), name='photo.' + ext)
+
+        return super().to_internal_value(data)
+    
+
 class ProfileSerializer(serializers.ModelSerializer):
+    photo = Base64ImageField(required=False, allow_null=True)
+
     class Meta:
         model = Profile
-        fields = ('id', 'user', 'gender', 'birthday', 'height', 'weight')
+        fields = ('id', 'user', 'gender', 'birthday', 'height', 'weight', 'photo')
+
+    def update(self, instance, validated_data):
+        # Удаление старого фото перед сохранением нового
+        old_photo = instance.photo
+        if 'photo' in validated_data and old_photo:
+            old_photo.delete(save=False)
+
+        return super().update(instance, validated_data)
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -88,3 +110,20 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ('id', 'user', 'text', 'signal_date', 'relevance', 'past', 'now', 'future')
+
+
+# class TaskSerializer(serializers.ModelSerializer):
+#     full_name = serializers.CharField(source='user.full_name', read_only=True)
+
+#     class Meta:
+#         model = Task
+#         fields = ('id', 'title', 'description', 'full_name')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    comment_to = serializers.CharField(source='task.user', read_only=True)
+    author_name = serializers.CharField(source='author.full_name', read_only=True)
+    
+    class Meta:
+        model = Comment
+        fields = ('id', 'task', 'comment_to', 'text', 'author', 'author_name', 'created')

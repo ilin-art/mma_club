@@ -17,12 +17,12 @@ from django.db.models import Q
 from django.utils.dateparse import parse_date
 import time
 
-from .serializers import LabelSerializer, UserSerializer, TrainingSerializer, ProfileSerializer, TaskSerializer
+from .serializers import LabelSerializer, UserSerializer, TrainingSerializer, ProfileSerializer, TaskSerializer, CommentSerializer
 
 from training_calendar.models import Label, Training
 
 from users.models import User, Profile
-from tasks.models import Task
+from tasks.models import Task, Comment
 
 
 #Декоратор для измерения скорости выполнения ф-ии
@@ -132,37 +132,9 @@ def admins_list(request):
     serializer = UserSerializer(queryset, many=True)
     return Response(serializer.data)
 
-# @api_view(['GET'])
-# def tasks(request):
-#     # Список сегодняшних заметок
-#     tasks = Task.objects.order_by('signal_date')
-#     today = date.today()
-#     count_past = 0
-#     count_now = 0
-#     count_future = 0
-#     for task in tasks:
-#         if task.relevance:
-#             if task.signal_date.date() < today:
-#                 task.past = True
-#                 task.now = False
-#                 task.future = False
-#                 count_past += 1
-#             elif task.signal_date.date() == today:
-#                 task.past = False
-#                 task.now = True
-#                 task.future = False
-#                 count_now += 1
-#             else:
-#                 task.past = False
-#                 task.now = False
-#                 task.future = True
-#                 count_future += 1
-
-        
-#         serializer = TaskSerializer(tasks, many=True)
-#         return Response(serializer.data)
 
 class TaskPastView(generics.ListAPIView):
+    # Список просроченных заметок
     serializer_class = TaskSerializer
     
     def get_queryset(self):
@@ -170,6 +142,7 @@ class TaskPastView(generics.ListAPIView):
     
 
 class TaskNowView(generics.ListAPIView):
+    # Список сегодняшних заметок
     serializer_class = TaskSerializer
     
     def get_queryset(self):
@@ -177,6 +150,7 @@ class TaskNowView(generics.ListAPIView):
 
 
 class TaskFutureView(generics.ListAPIView):
+    # Список будущих заметок
     serializer_class = TaskSerializer
     
     def get_queryset(self):
@@ -184,7 +158,7 @@ class TaskFutureView(generics.ListAPIView):
 
 
 class TaskCountView(APIView):
-    @measure_time
+    # Подсчет заметок каждого вида
     def get(self, request):
         tasks = Task.objects.filter(relevance=True).order_by('signal_date')
         today = date.today()
@@ -215,3 +189,31 @@ class TaskCountView(APIView):
                     task.save()
         return Response({'count_past': count_past, 'count_now': count_now, 'count_future': count_future})
 
+# НУЖНО ПЕРЕДЕЛАТЬ чтобы было видно от кого коммент
+# class CommentView(generics.ListCreateAPIView):
+#     #Создание и получение всех пользователей
+#     serializer_class = CommentSerializer
+
+#     def get_queryset(self):
+#         task_id = self.kwargs.get('pk')
+#         queryset = Comment.objects.filter(task_id=task_id).order_by('-created')
+#         # user_id = self.kwargs.get('pk')
+#         # queryset = Comment.objects.filter(task__user_id=user_id).order_by('-created')
+#         return queryset
+
+class CommentView(APIView):
+    def get(self, request, pk):
+        comments = Comment.objects.filter(task_id=pk).order_by('-created')
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        request.data['task'] = pk
+        request.data['author'] = request.user.id
+        serializer = CommentSerializer(data=request.data)
+        print(request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    

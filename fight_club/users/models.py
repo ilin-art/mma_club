@@ -118,6 +118,13 @@ class Profile(models.Model):
         blank=True,
         verbose_name='Вес'
     )
+    photo = models.ImageField(
+        null=True,
+        blank=True,
+        verbose_name='Фото',
+        upload_to='profile_photos/'
+    )
+
     def __str__(self):
         return self.user.full_name
 
