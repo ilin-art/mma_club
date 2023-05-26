@@ -6,6 +6,7 @@ from tasks.models import Task, Comment
 from datetime import datetime
 import base64
 from django.core.files.base import ContentFile
+from django.db.models import Count
 
 
 class LabelSerializer(serializers.ModelSerializer):
@@ -58,7 +59,7 @@ class TrainingSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     registration_date = serializers.SerializerMethodField()
-    last_login = serializers.SerializerMethodField()
+    last_login = serializers.SerializerMethodField()    
 
     def get_registration_date(self, obj):
         if obj.registration_date:
@@ -90,10 +91,24 @@ class Base64ImageField(serializers.ImageField):
 
 class ProfileSerializer(serializers.ModelSerializer):
     photo = Base64ImageField(required=False, allow_null=True)
+    trainings_as_coach = serializers.SerializerMethodField(source='get_trainings_as_coach')
+    trainings_as_client = serializers.SerializerMethodField(source='get_trainings_as_client')
 
     class Meta:
         model = Profile
-        fields = ('id', 'user', 'gender', 'birthday', 'height', 'weight', 'photo')
+        fields = ('id', 'user', 'gender', 'birthday', 'height', 'weight', 'photo', 'trainings_as_coach', 'trainings_as_client')
+
+    def get_trainings_as_coach(self, obj):
+        trainings = obj.user.trainigs_as_coach.all()
+        label_counts = trainings.values('label__name').annotate(count=Count('label__name')).order_by('label__name')
+
+        return [{'label': label['label__name'], 'count': label['count']} for label in label_counts]
+    
+    def get_trainings_as_client(self, obj):
+        trainings = obj.user.trainigs_as_client.all()
+        label_counts = trainings.values('label__name').annotate(count=Count('label__name')).order_by('label__name')
+
+        return [{'label': label['label__name'], 'count': label['count']} for label in label_counts]
 
     def update(self, instance, validated_data):
         # Удаление старого фото перед сохранением нового

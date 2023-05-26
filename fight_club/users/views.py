@@ -11,6 +11,7 @@ from tasks.forms import TaskForm
 from .models import User, Profile
 from tasks.models import Task
 from .scripts import authorized_only
+from datetime import datetime
 
 
 class SignUp(CreateView):
@@ -31,6 +32,16 @@ class ProfileView(View):
         last_login = user.last_login
         profile = get_object_or_404(Profile, user=user)
         task = get_object_or_404(Task, user=user)
+        trainings = user.trainigs_as_client.all()
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        if start_date and end_date:
+            # Преобразование строковых значений в объекты datetime
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+            # Фильтрация тренировок по заданному периоду
+            trainings = trainings.filter(start__date__gte=start_date, end__date__lte=end_date)
 
         global context
 
@@ -40,6 +51,9 @@ class ProfileView(View):
         'phoneNumber': phoneNumber,
         'registration_date': registration_date,
         'last_login': last_login,
+        'trainings': trainings,
+         'start_date': start_date,
+        'end_date': end_date,
         }
 
         profile_form = ProfileForm(self.request.GET or None, instance=profile)

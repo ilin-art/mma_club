@@ -34,7 +34,6 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'tasks.apps.TasksConfig',
-    'training_calendar.apps.TrainingCalendarConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'users.apps.UsersConfig',
+    'training_calendar.apps.TrainingCalendarConfig',
     'phonenumber_field',
 ]
 

@@ -10,6 +10,7 @@ from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.core.exceptions import ObjectDoesNotExist
+from training_calendar.models import Label
 
 
 class UserManager(BaseUserManager):
@@ -63,6 +64,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     registration_date = models.DateTimeField(auto_now_add=True, verbose_name = 'зарегистрирован')
     is_trainer = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+    training_counts = models.ManyToManyField(
+        Label, related_name='trainigs_as_coach',
+        through='TrainingCount',
+        verbose_name='Количество тренировок',
+    )
 
     USERNAME_FIELD = 'phoneNumber'
     REQUIRED_FIELDS = ['full_name', 'email']
@@ -132,6 +138,22 @@ class Profile(models.Model):
         ordering = ('-id',)
         verbose_name = 'Профиль'
         verbose_name_plural = 'Профили'
+
+
+class TrainingCount(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',)
+    label = models.ForeignKey(Label, on_delete=models.CASCADE, verbose_name='Метка')
+    count = models.IntegerField(default=0, verbose_name='Количество тренировок')
+
+    def __str__(self):
+        return f'{self.user.full_name} - {self.label} ({self.count})'
+
+    class Meta:
+        verbose_name = 'Количество тренировок'
+        verbose_name_plural = 'Количество тренировок'
 
 # Автоматическое создание профиля и заметки при регистрации
 @receiver(post_save, sender=User)

@@ -22,8 +22,6 @@ for _ in range(1000):
     user = User.objects.get(full_name=email)
     user.save()
     task = Task.objects.get(user=user)
-    # task = user.task_set.first()
-    # task = Task(user=user, relevance=True, signal_date=timezone.now())
     task.relevance = True
     task.signal_date = timezone.now()
     task.save()

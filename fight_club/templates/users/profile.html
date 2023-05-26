@@ -40,6 +40,23 @@
     <br>
     Последний вход: {{ last_login }}
     <br>
+    Тренировки:
+    {% for training in trainings %}
+        {{ training.id }}
+    {% endfor %}
+    
+    
+    
+    
+    <form method="get">
+      <label for="start_date">Начальная дата:</label>
+      <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+  
+      <label for="end_date">Конечная дата:</label>
+      <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+  
+      <button type="submit">Применить</button>
+    </form>
     <form action="" method="post">
         {% csrf_token %}
         <table>
