@@ -1,9 +1,9 @@
 from datetime import date
 from django.utils import timezone
-from django.db import models
-from django_filters import rest_framework as filters
+# from django.db import models
+# from django_filters import rest_framework as filters
 from django_filters.rest_framework import DjangoFilterBackend
-from django_filters import DateRangeFilter
+# from django_filters import DateRangeFilter
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import viewsets
@@ -12,8 +12,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from datetime import datetime, time, timedelta
-from django.http import JsonResponse
-from django.db.models import Q
+# from django.http import JsonResponse
+# from django.db.models import Q
 from django.utils.dateparse import parse_date
 import time
 from django.db.models import F
@@ -38,18 +38,18 @@ def measure_time(func):
     return wrapper
 
 
-class UserList(generics.ListCreateAPIView):
-    # Создание и получение всех пользователей
+class UserList(generics.ListAPIView):
+    # Получение пользователей
     serializer_class = UserSerializer
 
     def get_queryset(self):
         queryset = User.objects.all()
-        full_name = self.request.data.get('full_name')
-        phone_number = self.request.data.get('phoneNumber')
+        full_name = self.request.query_params.get('full_name')
+        phone_number = self.request.query_params.get('phoneNumber')
         if full_name:
             queryset = queryset.filter(full_name__icontains=full_name)
         if phone_number:
-            queryset = queryset.filter(phoneNumber=phone_number)
+            queryset = queryset.filter(phoneNumber__icontains=phone_number)
 
         return queryset
 
@@ -79,7 +79,13 @@ class TrainingViewSet(viewsets.ModelViewSet):
     serializer_class = TrainingSerializer
     filter_backends = (DjangoFilterBackend,)
     pagination_class = None
-    filterset_fields = {'start': ['gte', 'lte', 'exact']}
+    filterset_fields = {
+        'start': ['gte', 'lte', 'exact'],
+        'coach': ['exact'],
+        'client': ['exact'],
+        'label': ['exact'],
+        'is_completed': ['exact'],
+    }
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -108,15 +114,19 @@ class TrainingViewSet(viewsets.ModelViewSet):
         start_str_gte = self.request.GET.get('start__gte')
         start_str_lte = self.request.GET.get('start__lte')
         start_str_date = self.request.GET.get('start__date')
+        coach_id = self.request.GET.get('coach')
+        clients_ids = self.request.GET.getlist('client')
+        label_id = self.request.GET.get('label')
+        is_completed = self.request.GET.get('is_completed')
 
         if start_str_gte:
             start_gte = datetime.fromisoformat(start_str_gte)
-            start_gte = datetime.combine(start_gte, datetime.min.time())
+            start_gte = datetime.combine(start_gte.date(), datetime.min.time())
             queryset = queryset.filter(start__gte=start_gte)
 
         if start_str_lte:
             start_lte = datetime.fromisoformat(start_str_lte)
-            start_lte = datetime.combine(start_lte, datetime.max.time())
+            start_lte = datetime.combine(start_lte.date(), datetime.max.time())
             queryset = queryset.filter(start__lte=start_lte)
 
         if start_str_date:
@@ -124,7 +134,20 @@ class TrainingViewSet(viewsets.ModelViewSet):
             start_of_day = datetime.combine(start_date, datetime.min.time())
             end_of_day = datetime.combine(start_date, datetime.max.time())
             queryset = queryset.filter(start__gte=start_of_day, start__lte=end_of_day)
-        return queryset
+
+        if coach_id:
+            queryset = queryset.filter(coach=coach_id)
+
+        if clients_ids:
+            queryset = queryset.filter(client__in=clients_ids)
+
+        if label_id:
+            queryset = queryset.filter(label=label_id)
+
+        if is_completed == 'true':
+            queryset = queryset.filter(is_completed=True)
+
+        return queryset.distinct()
     
     
 @api_view(['GET'])
@@ -172,6 +195,73 @@ def admins_list(request):
     queryset = admins.filter(is_admin=True)
     serializer = UserSerializer(queryset, many=True)
     return Response(serializer.data)
+
+
+class TaskListView(generics.ListAPIView):
+    # Список заметок и создание новой заметки
+    serializer_class = TaskSerializer
+
+    def get_queryset(self):
+        queryset = Task.objects.all()
+        signal_date_str_gte = self.request.GET.get('signal_date__gte')
+        signal_date_str_lte = self.request.GET.get('signal_date__lte')
+        signal_date_str_date = self.request.GET.get('signal_date__date')
+
+        if signal_date_str_gte:
+            signal_date_gte = datetime.fromisoformat(signal_date_str_gte)
+            signal_date_gte = datetime.combine(signal_date_gte.date(), datetime.min.time())
+            queryset = queryset.filter(signal_date__gte=signal_date_gte)
+
+        if signal_date_str_lte:
+            signal_date_lte = datetime.fromisoformat(signal_date_str_lte)
+            signal_date_lte = datetime.combine(signal_date_lte.date(), datetime.max.time())
+            queryset = queryset.filter(signal_date__lte=signal_date_lte)
+
+        if signal_date_str_date:
+            signal_date_date = parse_date(signal_date_str_date)
+            start_of_day = datetime.combine(signal_date_date, datetime.min.time())
+            end_of_day = datetime.combine(signal_date_date, datetime.max.time())
+            queryset = queryset.filter(signal_date__gte=start_of_day, signal_date__lte=end_of_day)
+
+        # Фильтрация по полю "user"
+        user = self.request.query_params.get('user')
+        if user:
+            queryset = queryset.filter(user__full_name__icontains=user)
+
+        # Фильтрация по полю "phone_number"
+        phone_number = self.request.query_params.get('phone_number')
+        if phone_number:
+            queryset = queryset.filter(user__phoneNumber__icontains=phone_number)
+
+        # Фильтрация по полю "signal_date"
+        relevance = self.request.query_params.get('relevance')
+        if relevance:
+            queryset = queryset.filter(relevance=relevance)
+
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+class TaskDetailView(generics.RetrieveUpdateAPIView):
+    # Детали заметки и обновление заметки
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    http_method_names = ['get', 'patch']
+
+    def perform_update(self, serializer):
+        # Получаем изменяемые поля из запроса
+        data = self.request.data
+        update_fields = {}
+
+        # Проверяем, является ли поле разрешенным для обновления
+        for field in ('text', 'signal_date', 'relevance'):
+            if field in data:
+                update_fields[field] = data[field]
+
+        # Обновляем только разрешенные поля
+        serializer.save(**update_fields)
 
 
 class TaskPastView(generics.ListAPIView):
@@ -262,6 +352,18 @@ class PaymentView(APIView):
             payment_date_gte = datetime.strptime(payment_date_gte_str, '%Y-%m-%d').date()
             payment_date_lte = datetime.strptime(payment_date_lte_str, '%Y-%m-%d').date() + timedelta(days=1)
             queryset = queryset.filter(payment_date__range=[payment_date_gte, payment_date_lte])
+        # Применяем фильтрацию по полю "user", если параметр указан в запросе
+        user_id = request.GET.get('user')
+        if user_id:
+            queryset = queryset.filter(user=user_id)
+        # Применяем фильтрацию по полю "payment_method", если параметр указан в запросе
+        payment_method = request.GET.get('payment_method')
+        if payment_method:
+            queryset = queryset.filter(payment_method=payment_method)
+        # Применяем фильтрацию по полю "training_label", если параметр указан в запросе
+        training_label_id = request.GET.get('training_label')
+        if training_label_id:
+            queryset = queryset.filter(training_label=training_label_id)
 
         serializer = PaymentSerializer(queryset, many=True)
         return Response(serializer.data)

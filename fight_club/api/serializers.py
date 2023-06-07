@@ -138,10 +138,11 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.full_name', read_only=True)
+    phone_number = serializers.CharField(source='user.phoneNumber', read_only=True)
 
     class Meta:
         model = Task
-        fields = ('id', 'user', 'text', 'signal_date', 'relevance', 'past', 'now', 'future')
+        fields = ('id', 'user', 'phone_number', 'text', 'signal_date', 'relevance', 'past', 'now', 'future')
 
 
 class CommentSerializer(serializers.ModelSerializer):
