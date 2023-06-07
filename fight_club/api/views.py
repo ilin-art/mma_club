@@ -16,12 +16,14 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.utils.dateparse import parse_date
 import time
+from django.db.models import F
 
-from .serializers import LabelSerializer, UserSerializer, TrainingSerializer, ProfileSerializer, TaskSerializer, CommentSerializer
+from .serializers import LabelSerializer, UserSerializer, TrainingSerializer,\
+ProfileSerializer, TaskSerializer, CommentSerializer, PaymentSerializer
 
-from training_calendar.models import Label, Training
+from training_calendar.models import Label, Training, Payment
 
-from users.models import User, Profile
+from users.models import User, Profile, TrainingCount
 from tasks.models import Task, Comment
 
 
@@ -37,7 +39,23 @@ def measure_time(func):
 
 
 class UserList(generics.ListCreateAPIView):
-    #Создание и получение всех пользователей
+    # Создание и получение всех пользователей
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        queryset = User.objects.all()
+        full_name = self.request.data.get('full_name')
+        phone_number = self.request.data.get('phoneNumber')
+        if full_name:
+            queryset = queryset.filter(full_name__icontains=full_name)
+        if phone_number:
+            queryset = queryset.filter(phoneNumber=phone_number)
+
+        return queryset
+
+
+class UserDetail(generics.RetrieveAPIView):
+    #Получение одного пользователя по id
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -63,6 +81,29 @@ class TrainingViewSet(viewsets.ModelViewSet):
     pagination_class = None
     filterset_fields = {'start': ['gte', 'lte', 'exact']}
 
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        # Проверяем поле is_completed в данных запроса
+        is_completed = serializer.validated_data.get('is_completed')
+
+        # Если поле is_completed присутствует и равно True
+        if is_completed is True and instance.is_completed is False:
+            # Изменяем поле is_completed в объекте Training
+            instance.is_completed = True
+            instance.save()
+
+            # Обновляем количество тренировок (count) для соответствующих клиентов в модели TrainingCount
+            clients = instance.client.all()
+            for client in clients:
+                training_count = TrainingCount.objects.get(user=client, label=instance.label)
+                training_count.count -= 1
+                training_count.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def filter_queryset(self, queryset):
         start_str_gte = self.request.GET.get('start__gte')
         start_str_lte = self.request.GET.get('start__lte')
@@ -70,18 +111,18 @@ class TrainingViewSet(viewsets.ModelViewSet):
 
         if start_str_gte:
             start_gte = datetime.fromisoformat(start_str_gte)
-            start_gte = datetime.combine(start_gte, time.min)
+            start_gte = datetime.combine(start_gte, datetime.min.time())
             queryset = queryset.filter(start__gte=start_gte)
 
         if start_str_lte:
             start_lte = datetime.fromisoformat(start_str_lte)
-            start_lte = datetime.combine(start_lte, time.max)
+            start_lte = datetime.combine(start_lte, datetime.max.time())
             queryset = queryset.filter(start__lte=start_lte)
 
         if start_str_date:
             start_date = parse_date(start_str_date)
-            start_of_day = datetime.combine(start_date, time.min)
-            end_of_day = datetime.combine(start_date, time.max)
+            start_of_day = datetime.combine(start_date, datetime.min.time())
+            end_of_day = datetime.combine(start_date, datetime.max.time())
             queryset = queryset.filter(start__gte=start_of_day, start__lte=end_of_day)
         return queryset
     
@@ -189,17 +230,6 @@ class TaskCountView(APIView):
                     task.save()
         return Response({'count_past': count_past, 'count_now': count_now, 'count_future': count_future})
 
-# НУЖНО ПЕРЕДЕЛАТЬ чтобы было видно от кого коммент
-# class CommentView(generics.ListCreateAPIView):
-#     #Создание и получение всех пользователей
-#     serializer_class = CommentSerializer
-
-#     def get_queryset(self):
-#         task_id = self.kwargs.get('pk')
-#         queryset = Comment.objects.filter(task_id=task_id).order_by('-created')
-#         # user_id = self.kwargs.get('pk')
-#         # queryset = Comment.objects.filter(task__user_id=user_id).order_by('-created')
-#         return queryset
 
 class CommentView(APIView):
     def get(self, request, pk):
@@ -211,9 +241,45 @@ class CommentView(APIView):
         request.data['task'] = pk
         request.data['author'] = request.user.id
         serializer = CommentSerializer(data=request.data)
-        print(request.data)
         if serializer.is_valid():
             serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PaymentView(APIView):
+    def get(self, request):
+        queryset = Payment.objects.all()
+        payment_date_str = request.GET.get('payment_date')
+        payment_date_gte_str = request.GET.get('payment_date__gte')
+        payment_date_lte_str = request.GET.get('payment_date__lte')
+        if payment_date_str:
+            payment_date = datetime.strptime(payment_date_str, '%Y-%m-%d').date()
+            start_of_day = datetime.combine(payment_date, datetime.min.time())
+            end_of_day = datetime.combine(payment_date, datetime.max.time())
+            queryset = queryset.filter(payment_date__gte=start_of_day, payment_date__lte=end_of_day)
+        if payment_date_gte_str and payment_date_lte_str:
+            payment_date_gte = datetime.strptime(payment_date_gte_str, '%Y-%m-%d').date()
+            payment_date_lte = datetime.strptime(payment_date_lte_str, '%Y-%m-%d').date() + timedelta(days=1)
+            queryset = queryset.filter(payment_date__range=[payment_date_gte, payment_date_lte])
+
+        serializer = PaymentSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = PaymentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            label_id = request.data['training_label']
+            label = Label.objects.get(id=label_id)
+            label_cost = label.cost
+            label_count = int(request.data['amount'] / label_cost)
+            user_id = request.data['user']
+            client = User.objects.get(id=user_id)
+            training_count, created = TrainingCount.objects.get_or_create(user=client, label=label)
+            training_count.count = F('count') + label_count
+            training_count.save()
+
             return Response(serializer.data, status=status.HTTP_201_CREATED) 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     

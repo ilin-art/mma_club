@@ -65,7 +65,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_trainer = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     training_counts = models.ManyToManyField(
-        Label, related_name='trainigs_as_coach',
+        Label,
+        related_name='users_have_trains',
         through='TrainingCount',
         verbose_name='Количество тренировок',
     )

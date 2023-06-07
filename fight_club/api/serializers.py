@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from training_calendar.models import Label, Training
-from users.models import User, Profile
+from training_calendar.models import Label, Training, Payment
+from users.models import User, Profile, TrainingCount
 from tasks.models import Task, Comment
 from datetime import datetime
 import base64
@@ -12,7 +12,7 @@ from django.db.models import Count
 class LabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Label
-        fields = ('id', 'name', 'color', 'backgroundColor', 'dragBackgroundColor', 'borderColor')
+        fields = ('id', 'name', 'color', 'backgroundColor', 'dragBackgroundColor', 'borderColor', 'cost')
 
 
 class ClientSerializer(serializers.ModelSerializer):
@@ -30,7 +30,7 @@ class TrainingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Training
-        fields = ('id', 'coach', 'coach_name', 'clients', 'label', 'start', 'end',)
+        fields = ('id', 'coach', 'coach_name', 'clients', 'label', 'start', 'end', 'is_completed')
 
     def create(self, validated_data):
         clients_data = validated_data.pop('client')
@@ -57,9 +57,21 @@ class TrainingSerializer(serializers.ModelSerializer):
         return instance
 
 
+class TrainingCountSerializer(serializers.ModelSerializer):
+    label = LabelSerializer()
+    # label_id = serializers.PrimaryKeyRelatedField(queryset=Label.objects.all(), source='label')
+    # label = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = TrainingCount
+        fields = ('label', 'count')
+
+
 class UserSerializer(serializers.ModelSerializer):
     registration_date = serializers.SerializerMethodField()
-    last_login = serializers.SerializerMethodField()    
+    last_login = serializers.SerializerMethodField()
+    # training_counts = TrainingCountSerializer(many=True)
+    training_counts = serializers.SerializerMethodField()
 
     def get_registration_date(self, obj):
         if obj.registration_date:
@@ -73,9 +85,14 @@ class UserSerializer(serializers.ModelSerializer):
         else:
             return None
         
+    def get_training_counts(self, obj):
+        training_counts = TrainingCount.objects.filter(user=obj)
+        return [{"name": training_count.label.name, "count": training_count.count} for training_count in training_counts]
+        
+        
     class Meta:
         model = User
-        fields = ('id', 'full_name', 'email', 'phoneNumber', 'is_trainer',
+        fields = ('id', 'full_name', 'email', 'phoneNumber', 'training_counts', 'is_trainer',
                   'is_admin', 'registration_date', 'last_login')
 
 
@@ -99,13 +116,13 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'gender', 'birthday', 'height', 'weight', 'photo', 'trainings_as_coach', 'trainings_as_client')
 
     def get_trainings_as_coach(self, obj):
-        trainings = obj.user.trainigs_as_coach.all()
+        trainings = obj.user.trainigs_as_coach.filter(is_completed=True)
         label_counts = trainings.values('label__name').annotate(count=Count('label__name')).order_by('label__name')
 
         return [{'label': label['label__name'], 'count': label['count']} for label in label_counts]
     
     def get_trainings_as_client(self, obj):
-        trainings = obj.user.trainigs_as_client.all()
+        trainings = obj.user.trainigs_as_client.filter(is_completed=True)
         label_counts = trainings.values('label__name').annotate(count=Count('label__name')).order_by('label__name')
 
         return [{'label': label['label__name'], 'count': label['count']} for label in label_counts]
@@ -127,14 +144,6 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'text', 'signal_date', 'relevance', 'past', 'now', 'future')
 
 
-# class TaskSerializer(serializers.ModelSerializer):
-#     full_name = serializers.CharField(source='user.full_name', read_only=True)
-
-#     class Meta:
-#         model = Task
-#         fields = ('id', 'title', 'description', 'full_name')
-
-
 class CommentSerializer(serializers.ModelSerializer):
     comment_to = serializers.CharField(source='task.user', read_only=True)
     author_name = serializers.CharField(source='author.full_name', read_only=True)
@@ -142,3 +151,18 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'task', 'comment_to', 'text', 'author', 'author_name', 'created')
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    # training_label = serializers.CharField(source='training_label.name', read_only=True)
+
+
+    class Meta:
+        model = Payment
+        fields = ('id', 'user', 'amount', 'payment_date', 'payment_method', 'training_label')
+        extra_kwargs = {
+            'user': {'required': True},
+            'amount': {'required': True},
+            'payment_method': {'required': True},
+            'training_label': {'required': True},
+        }

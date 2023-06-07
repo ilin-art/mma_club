@@ -70,3 +70,17 @@ class Payment(models.Model):
     class Meta:
         verbose_name = 'Оплата тренировки'
         verbose_name_plural = 'Оплаты тренировок'
+
+class Payment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, verbose_name='Пользователь')
+    amount = models.IntegerField(verbose_name='Сумма оплаты')
+    payment_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата оплаты', blank=True)
+    payment_method = models.CharField(choices=CHOICES_PAY, max_length=255, verbose_name='Способ оплаты')
+    training_label = models.ForeignKey(Label, on_delete=models.SET_NULL, null=True, verbose_name='Вид тренировки')
+
+    def __str__(self):
+        return f"{self.user.full_name} - {self.payment_date}"
+
+    class Meta:
+        verbose_name = 'Оплата тренировки'
+        verbose_name_plural = 'Оплаты тренировок'
