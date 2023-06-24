@@ -30,21 +30,20 @@ class TrainingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Training
-        fields = ('id', 'coach', 'coach_name', 'clients', 'label', 'start', 'end', 'is_completed')
+        fields = ('id', 'coach', 'coach_name', 'clients', 'label', 'comment', 'start', 'end', 'is_completed', 'is_burned')
 
     def create(self, validated_data):
         clients_data = validated_data.pop('client')
         training = Training.objects.create(**validated_data)
         for client_data in clients_data:
-            print(client_data)
             training.client.add(User.objects.get(id=client_data['pk']))
         return training
     
     def update(self, instance, validated_data):
         clients_data = validated_data.pop('client', None)
-        
         instance.coach = validated_data.get('coach', instance.coach)
         instance.label = validated_data.get('label', instance.label)
+        instance.comment = validated_data.get('comment', instance.comment)
         instance.start = validated_data.get('start', instance.start)
         instance.end = validated_data.get('end', instance.end)
 

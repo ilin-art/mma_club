@@ -47,9 +47,11 @@ class Training(models.Model):
         verbose_name="клиент",
         null=True,
     )
+    comment = models.TextField(blank=True, verbose_name = 'коментарий')
     start =  models.DateTimeField(verbose_name='Начало тренировки')
     end =  models.DateTimeField(verbose_name='Конец тренировки')
-    is_completed = models.BooleanField(default=False, verbose_name='Завершена тренировка')
+    is_completed = models.BooleanField(default=False, verbose_name='Тренировка завершена')
+    is_burned = models.BooleanField(default=False, verbose_name='Тренировка сгорела')
 
     class Meta:
         ordering = ('-id',)

@@ -85,6 +85,7 @@ class TrainingViewSet(viewsets.ModelViewSet):
         'client': ['exact'],
         'label': ['exact'],
         'is_completed': ['exact'],
+        'is_burned': ['exact'],
     }
 
     def partial_update(self, request, *args, **kwargs):
@@ -95,10 +96,18 @@ class TrainingViewSet(viewsets.ModelViewSet):
         # Проверяем поле is_completed в данных запроса
         is_completed = serializer.validated_data.get('is_completed')
 
+        # Проверяем поле is_burned в данных запроса
+        is_burned = serializer.validated_data.get('is_burned')
+
         # Если поле is_completed присутствует и равно True
         if is_completed is True and instance.is_completed is False:
             # Изменяем поле is_completed в объекте Training
             instance.is_completed = True
+
+            # Если поле is_burned присутствует и равно True
+            if is_burned is True and instance.is_burned is False:
+                # Изменяем поле is_burned в объекте Training
+                instance.is_burned = True
             instance.save()
 
             # Обновляем количество тренировок (count) для соответствующих клиентов в модели TrainingCount
